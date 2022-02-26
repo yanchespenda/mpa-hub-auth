@@ -1,0 +1,60 @@
+<section class="container">
+  <div class="oauthContainer">
+    <div fxLayout="column" fxLayoutAlign="center center">
+      <mat-card class="oauthCard">
+        <div *ngIf="isLoading" class="mplCover"></div>
+        <mat-progress-bar 
+          [@loadingAnimation]="'in'"
+          *ngIf="isLoading"
+          class="mplProgressBar"
+          color="primary" mode="indeterminate">
+        </mat-progress-bar>
+        <mat-card-content class="oauthCardContent">
+          <div class="contentLogoContainer">
+            <div fxLayout="row" fxLayoutAlign="center center">
+              <div class="logo only-text">
+                <img src="/assets/images/logo_web.png" alt="logo">
+              </div>
+            </div>
+          </div>
+          <form [formGroup]="signInForm">
+            <div class="infoBoxParent">
+              <h1 class="mat-headline subtitleText"><span>Sign in</span></h1>
+              <div>
+                <h3 *ngIf="!isErrorPrimary" class="mat-subheading-2 subtitleText"><span>Use your MPA account</span></h3>
+                <h3 *ngIf="isErrorPrimary" class="mat-subheading-2 subtitleText mat-error"><span>{{ getFormErrorMessage("primary") }}</span></h3>
+              </div>
+            </div>
+
+            <div class="formPadding">
+              <mat-form-field class="fullSize" appearance="outline">
+                <mat-label>Email</mat-label>
+                <input #inputUsername formControlName="username" matInput value="" autocomplete="off">
+                <mat-error *ngIf="signInForm.invalid">{{ getFormErrorMessage("username", "required", "Email") }}</mat-error>
+              </mat-form-field>
+              <mat-form-field class="fullSize inputMargin" appearance="outline">
+                <mat-label>Password</mat-label>
+                <input #inputPassword [type]="pswdHide ? 'password' : 'text'" formControlName="password" matInput value="" autocomplete="off">
+                <mat-error *ngIf="signInForm.invalid">{{ getFormErrorMessage("password", "required", "Password") }}</mat-error>
+                <button type="button" mat-icon-button matSuffix (click)="pswdHide = !pswdHide">
+                  <mat-icon aria-label="Password icon">{{ pswdHide ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </mat-form-field>
+
+              <div class="formAction">
+                <div fxLayout="row" fxLayoutAlign="center center">
+                  <span>Forgot password?</span>
+                  <div fxFlex></div>
+                </div>
+                <div fxLayout="row" fxLayoutAlign="center center" class="actionBottom">
+                  <div fxFlex></div>
+                  <button mat-flat-button color="primary" (click)="submitRecaptcha()" [disabled]="isLoading">&nbsp; SIGN IN &nbsp;</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</section>

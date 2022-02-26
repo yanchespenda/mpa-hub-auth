@@ -3,7 +3,11 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+
+  BASE_API_URL: 'http://127.0.0.1:5000/',
+
+  RECAPTCHA_V3_SITE_KEY: '6LfAjaAeAAAAACPr7rpb3nQtLJP5uXHk6TzFKjfn',
 };
 
 /*

@@ -1,0 +1,23 @@
+@import "./variable";
+
+.fullSize {
+  width: 100%;
+}
+
+.borderTop {
+  border-top-right-radius: $borderValue;
+  border-top-left-radius: $borderValue;
+}
+
+.borderBottom {
+  border-bottom-right-radius: $borderValue;
+  border-bottom-left-radius: $borderValue;
+}
+
+.border {
+  border-radius: $borderValue;
+}
+
+.inputMargin {
+  margin-top: 8px;
+}
