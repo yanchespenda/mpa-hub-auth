@@ -1,9 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ReCaptchaV3Service } from 'ng-recaptcha';
 import { finalize, Subscription } from 'rxjs';
 import { OauthService } from 'src/app/shared/services/oauth.service';
+import { BaseQueryParam } from 'src/app/shared/types';
 import { loadingAnimation } from 'src/app/shared/utils/animation';
 import { capitalize } from 'src/app/shared/utils/string-utils';
 
@@ -33,11 +35,29 @@ export class SigninComponent implements OnInit, OnDestroy {
     ],
   });
 
+  queryParam!: BaseQueryParam;
+
   constructor(
     private formBuilder: FormBuilder,
     private recaptchaV3Service: ReCaptchaV3Service,
     private oauthService: OauthService,
-  ) { }
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
+  ) {
+    this.queryParamValidation();
+  }
+
+  queryParamValidation(): void {
+    this.queryParam = this.activatedRoute.snapshot.queryParams as BaseQueryParam;
+    if (!this.queryParam.redirect) {
+      this.router.navigate([`/error`], {
+        queryParams: {
+          title: 'Bad Request',
+          desc: 'The request redirect not found'
+        },
+      });
+    }
+  }
 
   getFormErrorMessage(control: string, errorName?: string, customControlName?: string): string | null {
     const controlName = customControlName ? customControlName : capitalize(control);
@@ -76,14 +96,11 @@ export class SigninComponent implements OnInit, OnDestroy {
     this.recaptchaV3Service.execute('signin')
       .subscribe({
         next: token => this.submitForm(token),
-        error: this.submitRecaptchaErrorHandler,
-        complete: () => console.info('complete')
+        error: err => this.submitRecaptchaErrorHandler(err),
       });
   }
 
   submitForm(token: string): void {
-    console.log('token', token);
-
     this.oauthService.signIn(
       this.valueForm['username'].value,
       this.valueForm['password'].value,
@@ -100,8 +117,22 @@ export class SigninComponent implements OnInit, OnDestroy {
     });
   }
 
-  submitRecaptchaErrorHandler(error: any): void {
-    console.log("error", error)
+  submitRecaptchaErrorHandler(error: HttpErrorResponse): void {
+    console.log("error", error);
+
+    this.isErrorPrimary = true;
+    this.primaryErrorMessage = error?.error?.message || error?.message || 'Something went wrong';
+  }
+
+  goToSignup(): void {
+    if (this.queryParam.redirect) {
+      this.router.navigate([`/signup`], {
+        queryParams: {
+          redirect: this.queryParam.redirect,
+          ref: this.queryParam.ref
+        },
+      });
+    }
   }
 
   ngOnInit(): void {
@@ -114,9 +145,7 @@ export class SigninComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.recaptchaSubscriber) {
-      this.recaptchaSubscriber.unsubscribe();
-    }
+    this.recaptchaUnsubscribe();
   }
 
 }

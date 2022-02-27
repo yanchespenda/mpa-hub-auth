@@ -42,11 +42,14 @@
               </mat-form-field>
 
               <div class="formAction">
-                <div fxLayout="row" fxLayoutAlign="center center">
-                  <span>Forgot password?</span>
-                  <div fxFlex></div>
-                </div>
                 <div fxLayout="row" fxLayoutAlign="center center" class="actionBottom">
+                  <button mat-button [matMenuTriggerFor]="menuAuth" type="button">More options</button>
+                  <mat-menu #menuAuth="matMenu">
+                    <a mat-menu-item (click)="goToSignup()">Create new account</a>
+                    <a mat-menu-item>Forgot password</a>
+                    <a mat-menu-item href="https://myponyasia.com/" rel="noreferer">Go to homepage</a>
+                    <a mat-menu-item href="https://discord.gg/uvFxwvSy9D" target="_blank" rel="noreferer">Need help?</a>
+                  </mat-menu>
                   <div fxFlex></div>
                   <button mat-flat-button color="primary" (click)="submitRecaptcha()" [disabled]="isLoading">&nbsp; SIGN IN &nbsp;</button>
                 </div>
