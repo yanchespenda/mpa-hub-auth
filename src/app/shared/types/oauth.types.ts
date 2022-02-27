@@ -16,7 +16,7 @@ export interface OauthSigninData {
 export interface OauthSignin {
   status: boolean;
   message: string;
-  data: OauthSigninData;
+  data: string;
 }
 
 interface OauthErrorResponseData {

@@ -26,7 +26,7 @@ export class SigninComponent implements OnInit, OnDestroy {
   primaryErrorMessage!: string;
   recaptchaSubscriber!: Subscription;
 
-  signInForm: FormGroup = this.formBuilder.group({
+  dataForm: FormGroup = this.formBuilder.group({
     username: [
       null, [Validators.required, Validators.email]
     ],
@@ -72,12 +72,12 @@ export class SigninComponent implements OnInit, OnDestroy {
   }
 
   get valueForm(): FormGroup['controls'] {
-    return this.signInForm.controls;
+    return this.dataForm.controls;
   }
 
   submitRecaptcha(): void {
 
-    if (this.signInForm.invalid) {
+    if (this.dataForm.invalid) {
       if (this.valueForm['username'].invalid) {
         this.inputUsername.nativeElement.focus();
       } else if (this.valueForm['password'].invalid) {

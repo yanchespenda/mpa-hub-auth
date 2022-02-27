@@ -30,4 +30,14 @@ export class OauthService {
                   .set('token', token);
     return this.httpClient.post<OauthSignin>(this.BASE_AUTH + 'signin', dataParams);
   }
+
+  signUp(username: string, email: string, password: string, passwordConfirm: string, token: string): Observable<OauthSignin> {
+    const dataParams = new HttpParams()
+                  .set('username', username)
+                  .set('email', email)
+                  .set('password', password)
+                  .set('passwordConfirm', passwordConfirm)
+                  .set('token', token);
+    return this.httpClient.post<OauthSignin>(this.BASE_AUTH + 'signup', dataParams);
+  }
 }
