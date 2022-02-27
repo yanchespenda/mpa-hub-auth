@@ -14,11 +14,13 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { SigninComponent } from './components/signin/signin.component';
 import { ErrorPageComponent } from './components/error-page/error-page.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { environment } from 'src/environments/environment';
+import { BaseComponent } from './components/base/base.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +28,7 @@ import { environment } from 'src/environments/environment';
     SigninComponent,
     ErrorPageComponent,
     SignupComponent,
+    BaseComponent,
   ],
   imports: [
     BrowserModule,
@@ -42,6 +45,7 @@ import { environment } from 'src/environments/environment';
     MatInputModule,
     MatIconModule,
     MatButtonModule,
+    MatMenuModule,
   ],
   providers: [
     { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.RECAPTCHA_V3_SITE_KEY }
