@@ -85,7 +85,7 @@ export class RequestComponent implements OnInit, OnDestroy {
 
   generateStepper(): void {
     if (this.queryParam.action) {
-      if (this.queryParam.action === 'email-verification')
+      if (this.queryParam.action === 'email-verification') {
         this.stepOneTitle = "Verifying email";
         this.mainTitle = "Verifying email";
         this.requestStep = 1;
@@ -95,11 +95,12 @@ export class RequestComponent implements OnInit, OnDestroy {
           this.tokenName = RECAPTCHA_IDENTIFIER.EMAIL_VERIFICATION;
           this.submitRecaptcha((token) => this.submitEmailVerifiation(token));
         });
-      if (this.queryParam.action === 'reset-password')
+      } else if (this.queryParam.action === 'reset-password') {
         this.mainTitle = "Reset password";
         this.mainSubTitle = "Enter your new password";
         this.mainButtonText = "CONFIRM";
         this.requestStep = 3;
+      }
     }
   }
 
