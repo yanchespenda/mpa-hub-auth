@@ -2,10 +2,10 @@
   <div class="oauthContainer">
     <div fxLayout="column" fxLayoutAlign="center center">
       <mat-card class="oauthCard">
-        <div *ngIf="isLoading" class="mplCover"></div>
+        <div *ngIf="isLoading && requestStep > 1" class="mplCover"></div>
         <mat-progress-bar 
           [@loadingAnimation]="'in'"
-          *ngIf="isLoading"
+          *ngIf="isLoading && requestStep > 1"
           class="mplProgressBar"
           color="primary" mode="indeterminate">
         </mat-progress-bar>
@@ -17,21 +17,34 @@
               </div>
             </div>
           </div>
-          <form [formGroup]="dataForm">
+
+          <div *ngIf="requestStep === 1" class="formPadding">
             <div class="infoBoxParent">
-              <h1 class="mat-headline subtitleText"><span>Sign in</span></h1>
+              <h1 *ngIf="!isErrorPrimary" class="mat-headline subtitleText"><span>{{ stepOneTitle }}</span></h1>
               <div>
-                <h3 *ngIf="!isErrorPrimary" class="mat-subheading-2 subtitleText"><span>Use your MPA account</span></h3>
+                <h1 *ngIf="isErrorPrimary" class="mat-headline subtitleText mat-error"><span>{{ getFormErrorMessage("primary") }}</span></h1>
+              </div>
+            </div>
+
+            <div fxLayout="row" fxLayoutAlign="space-around center" class="spinnerContainer" *ngIf="isLoading">
+              <mat-spinner mode="indeterminate" diameter="48"></mat-spinner>
+            </div>
+
+          </div>
+          <form [formGroup]="dataForm" *ngIf="requestStep > 1">
+            <div class="infoBoxParent">
+              <h1 class="mat-headline subtitleText"><span>{{ getTitle() }}</span></h1>
+              <div *ngIf="requestStep != 99">
+                <h3 *ngIf="!isErrorPrimary" class="mat-subheading-2 subtitleText"><span>{{ getSubTitle() }}</span></h3>
                 <h3 *ngIf="isErrorPrimary" class="mat-subheading-2 subtitleText mat-error"><span>{{ getFormErrorMessage("primary") }}</span></h3>
               </div>
             </div>
 
-            <div class="formPadding">
-              <mat-form-field class="fullSize" appearance="outline">
-                <mat-label>Email</mat-label>
-                <input #inputUsername formControlName="username" matInput value="" autocomplete="off">
-                <mat-error *ngIf="dataForm.invalid">{{ getFormErrorMessage("username", "required", "Email") }}</mat-error>
-              </mat-form-field>
+            <div *ngIf="requestStep === 99" class="formPadding">
+              <h3 class="mat-subheading-2 subtitleText text-center"><span>{{ stepNineNineTitle }}</span></h3>
+            </div>
+
+            <div class="formPadding" *ngIf="requestStep === 3">
               <mat-form-field class="fullSize inputMargin" appearance="outline">
                 <mat-label>Password</mat-label>
                 <input #inputPassword [type]="pswdHide ? 'password' : 'text'" formControlName="password" matInput value="" autocomplete="off">
@@ -40,18 +53,24 @@
                   <mat-icon aria-label="Password icon">{{ pswdHide ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
               </mat-form-field>
+              <mat-form-field class="fullSize inputMargin" appearance="outline">
+                <mat-label>Confirm Password</mat-label>
+                <input #inputPasswordConfirm [type]="pswdHide ? 'password' : 'text'" formControlName="passwordConfirm" matInput value="" autocomplete="off">
+                <mat-error *ngIf="dataForm.invalid">{{ getFormErrorMessage("passwordConfirm", "required", "Confirm Password") }}</mat-error>
+                <button type="button" mat-icon-button matSuffix (click)="pswdHide = !pswdHide">
+                  <mat-icon aria-label="Password icon">{{ pswdHide ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </mat-form-field>
 
-              <div class="formAction">
+              <div class="formAction" *ngIf="requestStep === 3">
                 <div fxLayout="row" fxLayoutAlign="center center" class="actionBottom">
                   <button mat-button [matMenuTriggerFor]="menuAuth" type="button">More options</button>
                   <mat-menu #menuAuth="matMenu">
-                    <a mat-menu-item (click)="goToSignup()">Create new account</a>
-                    <a mat-menu-item (click)="openForgotPassword()">Forgot password</a>
                     <a mat-menu-item href="https://myponyasia.com/" rel="noreferer">Go to homepage</a>
                     <a mat-menu-item href="https://discord.gg/uvFxwvSy9D" target="_blank" rel="noreferer">Need help?</a>
                   </mat-menu>
                   <div fxFlex></div>
-                  <button mat-flat-button color="primary" (click)="submitRecaptcha()" [disabled]="isLoading">&nbsp; SIGN IN &nbsp;</button>
+                  <button mat-flat-button color="primary" (click)="submitButton()" [disabled]="isLoading">&nbsp; {{ getButtonText() }} &nbsp;</button>
                 </div>
               </div>
             </div>

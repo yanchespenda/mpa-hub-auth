@@ -35,7 +35,7 @@
               <mat-form-field class="fullSize inputMargin" appearance="outline">
                 <mat-label>Email</mat-label>
                 <input #inputEmail formControlName="email" matInput value="" autocomplete="off">
-                <mat-error *ngIf="dataForm.invalid">{{ getFormErrorMessage("email", "required", "Email") }}</mat-error>
+                <mat-error *ngIf="dataForm.invalid">{{ getFormErrorMessage("email", ["required", "email"], "Email") }}</mat-error>
               </mat-form-field>
               <mat-form-field class="fullSize inputMargin" appearance="outline">
                 <mat-label>Password</mat-label>

@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { BaseComponent } from './components/base/base.component';
 import { ErrorPageComponent } from './components/error-page/error-page.component';
+import { RequestComponent } from './components/request/request.component';
 import { SigninComponent } from './components/signin/signin.component';
 import { SignupComponent } from './components/signup/signup.component';
 
@@ -18,6 +19,10 @@ const routes: Routes = [
   {
     path: 'signup',
     component: SignupComponent
+  },
+  {
+    path: 'request',
+    component: RequestComponent
   },
   {
     path: 'error', component: ErrorPageComponent

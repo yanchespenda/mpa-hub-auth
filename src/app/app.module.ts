@@ -15,12 +15,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { SigninComponent } from './components/signin/signin.component';
 import { ErrorPageComponent } from './components/error-page/error-page.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { environment } from 'src/environments/environment';
 import { BaseComponent } from './components/base/base.component';
+import { RequestComponent } from './components/request/request.component';
+import { DialogForgotPasswordComponent } from './components/dialog-forgot-password/dialog-forgot-password.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +34,8 @@ import { BaseComponent } from './components/base/base.component';
     ErrorPageComponent,
     SignupComponent,
     BaseComponent,
+    RequestComponent,
+    DialogForgotPasswordComponent,
   ],
   imports: [
     BrowserModule,
@@ -46,6 +53,9 @@ import { BaseComponent } from './components/base/base.component';
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
   ],
   providers: [
     { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.RECAPTCHA_V3_SITE_KEY }

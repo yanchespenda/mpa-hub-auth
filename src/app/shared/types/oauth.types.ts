@@ -33,3 +33,30 @@ export interface OauthErrorResponse {
 export interface OauthPermissionResponse {
   message: string;
 }
+
+export interface OauthRequest {
+  status: boolean;
+  message: string;
+}
+
+export interface OauthRequestParam {
+  action: string;
+  requestId: string;
+  tokenKey: string;
+}
+
+export interface OauthForgotPasswordParam {
+  email: string;
+}
+
+export interface OauthForgotPasswordConfirmParam {
+  requestId: string;
+  tokenKey: string;
+  password: string;
+  passwordConfirm: string;
+}
+
+export interface OauthEmailVerificationParam {
+  requestId: string;
+  tokenKey: string;
+}

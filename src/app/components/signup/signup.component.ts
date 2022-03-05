@@ -3,10 +3,11 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReCaptchaV3Service } from 'ng-recaptcha';
-import { Subscription, finalize } from 'rxjs';
+import { Subscription, finalize, timeout } from 'rxjs';
 import { OauthService } from 'src/app/shared/services/oauth.service';
 import { BaseQueryParam } from 'src/app/shared/types';
 import { capitalize } from 'src/app/shared/utils/string-utils';
+import { validatorMessage } from 'src/app/shared/utils/validator-message';
 
 @Component({
   selector: 'app-signup',
@@ -16,7 +17,9 @@ import { capitalize } from 'src/app/shared/utils/string-utils';
 export class SignupComponent implements OnInit, OnDestroy {
 
   @ViewChild('inputUsername', {static: true}) inputUsername!: ElementRef;
+  @ViewChild('inputEmail', {static: true}) inputEmail!: ElementRef;
   @ViewChild('inputPassword', {static: true}) inputPassword!: ElementRef;
+  @ViewChild('inputPasswordConfirm', {static: true}) inputPasswordConfirm!: ElementRef;
 
   isLoading: boolean = false;
   pswdHide: boolean = true;
@@ -63,16 +66,8 @@ export class SignupComponent implements OnInit, OnDestroy {
     }
   }
 
-  getFormErrorMessage(control: string, errorName?: string, customControlName?: string): string | null {
-    const controlName = customControlName ? customControlName : capitalize(control);
-    if (control === 'primary')
-      return this.primaryErrorMessage;
-    if (errorName && this.valueForm[control]?.hasError(errorName))
-      if (errorName === 'required')
-        return `${controlName} required`;
-      else if (errorName === 'email')
-        return `${controlName} is not valid`;
-    return null;
+  getFormErrorMessage(control: string, errorName?: string | string[], customControlName?: string): string | null {
+    return validatorMessage(this.primaryErrorMessage, this.valueForm, control, errorName, customControlName);
   }
 
   get valueForm(): FormGroup['controls'] {
@@ -84,8 +79,12 @@ export class SignupComponent implements OnInit, OnDestroy {
     if (this.dataForm.invalid) {
       if (this.valueForm['username'].invalid) {
         this.inputUsername.nativeElement.focus();
+      } else if (this.valueForm['email'].invalid) {
+        this.inputEmail.nativeElement.focus();
       } else if (this.valueForm['password'].invalid) {
         this.inputPassword.nativeElement.focus();
+      } else if (this.valueForm['passwordConfirm'].invalid) {
+        this.inputPasswordConfirm.nativeElement.focus();
       }
       return;
     }
@@ -96,8 +95,17 @@ export class SignupComponent implements OnInit, OnDestroy {
 
     this.isErrorPrimary = false;
     this.isLoading = true;
+    this.stateDisabledInput(true);
 
-    this.recaptchaV3Service.execute('signup')
+    this.recaptchaSubscriber = this.recaptchaV3Service.execute('signup')
+      .pipe(
+        timeout({
+          each: 5000,
+          with: () => {
+            throw new Error('timeout')
+          }
+        })
+      )
       .subscribe({
         next: token => this.submitForm(token),
         error: err => this.submitRecaptchaErrorHandler(err),
@@ -112,7 +120,10 @@ export class SignupComponent implements OnInit, OnDestroy {
       this.valueForm['passwordConfirm'].value,
       token
     ).pipe(
-      finalize(() => this.isLoading = false)
+      finalize(() => {
+        this.isLoading = false;
+        this.stateDisabledInput(false);
+      })
     ).subscribe({
       next: (data: any) => console.log(data),
       error: (error: HttpErrorResponse) => {
@@ -126,8 +137,12 @@ export class SignupComponent implements OnInit, OnDestroy {
   submitRecaptchaErrorHandler(error: HttpErrorResponse): void {
     console.log("error", error);
 
+    this.stateDisabledInput(false);
     this.isErrorPrimary = true;
-    this.primaryErrorMessage = error?.error?.message || error?.message || 'Something went wrong';
+    if (error?.message === 'timeout')
+      this.primaryErrorMessage = 'Recaptcha not valid';
+    else
+      this.primaryErrorMessage = error?.error?.message || error?.message || 'Something went wrong';
   }
 
   goToSignin(): void {
@@ -138,6 +153,20 @@ export class SignupComponent implements OnInit, OnDestroy {
           ref: this.queryParam.ref
         },
       });
+    }
+  }
+
+  stateDisabledInput(state: boolean): void {
+    if (state) {
+      this.valueForm['username'].disable();
+      this.valueForm['email'].disable();
+      this.valueForm['password'].disable();
+      this.valueForm['passwordConfirm'].disable();
+    } else {
+      this.valueForm['username'].enable();
+      this.valueForm['email'].enable();
+      this.valueForm['password'].enable();
+      this.valueForm['passwordConfirm'].enable();
     }
   }
 

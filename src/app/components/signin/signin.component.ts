@@ -1,13 +1,16 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReCaptchaV3Service } from 'ng-recaptcha';
-import { finalize, Subscription } from 'rxjs';
+import { finalize, Subscription, throwError, timeout, timeoutWith } from 'rxjs';
 import { OauthService } from 'src/app/shared/services/oauth.service';
 import { BaseQueryParam } from 'src/app/shared/types';
 import { loadingAnimation } from 'src/app/shared/utils/animation';
 import { capitalize } from 'src/app/shared/utils/string-utils';
+import { validatorMessage } from 'src/app/shared/utils/validator-message';
+import { DialogForgotPasswordComponent } from '../dialog-forgot-password/dialog-forgot-password.component';
 
 @Component({
   selector: 'app-signin',
@@ -43,6 +46,7 @@ export class SigninComponent implements OnInit, OnDestroy {
     private oauthService: OauthService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
+    public dialog: MatDialog,
   ) {
     this.queryParamValidation();
   }
@@ -59,16 +63,8 @@ export class SigninComponent implements OnInit, OnDestroy {
     }
   }
 
-  getFormErrorMessage(control: string, errorName?: string, customControlName?: string): string | null {
-    const controlName = customControlName ? customControlName : capitalize(control);
-    if (control === 'primary')
-      return this.primaryErrorMessage;
-    if (errorName && this.valueForm[control]?.hasError(errorName))
-      if (errorName === 'required')
-        return `${controlName} required`;
-      else if (errorName === 'email')
-        return `${controlName} is not valid`;
-    return null;
+  getFormErrorMessage(control: string, errorName?: string | string[], customControlName?: string): string | null {
+    return validatorMessage(this.primaryErrorMessage, this.valueForm, control, errorName, customControlName);
   }
 
   get valueForm(): FormGroup['controls'] {
@@ -93,7 +89,15 @@ export class SigninComponent implements OnInit, OnDestroy {
     this.isErrorPrimary = false;
     this.isLoading = true;
 
-    this.recaptchaV3Service.execute('signin')
+    this.recaptchaSubscriber = this.recaptchaV3Service.execute('signin')
+      .pipe(
+        timeout({
+          each: 5000,
+          with: () => {
+            throw new Error('timeout')
+          }
+        })
+      )
       .subscribe({
         next: token => this.submitForm(token),
         error: err => this.submitRecaptchaErrorHandler(err),
@@ -106,7 +110,10 @@ export class SigninComponent implements OnInit, OnDestroy {
       this.valueForm['password'].value,
       token
     ).pipe(
-      finalize(() => this.isLoading = false)
+      finalize(() => {
+        this.isLoading = false;
+        this.stateDisabledInput(false);
+      })
     ).subscribe({
       next: (data: any) => console.log(data),
       error: (error: HttpErrorResponse) => {
@@ -121,7 +128,12 @@ export class SigninComponent implements OnInit, OnDestroy {
     console.log("error", error);
 
     this.isErrorPrimary = true;
-    this.primaryErrorMessage = error?.error?.message || error?.message || 'Something went wrong';
+    this.isLoading = false;
+    this.stateDisabledInput(false);
+    if (error?.message === 'timeout')
+      this.primaryErrorMessage = 'Recaptcha not valid';
+    else
+      this.primaryErrorMessage = error?.error?.message || error?.message || 'Something went wrong';
   }
 
   goToSignup(): void {
@@ -132,6 +144,26 @@ export class SigninComponent implements OnInit, OnDestroy {
           ref: this.queryParam.ref
         },
       });
+    }
+  }
+
+  openForgotPassword(): void {
+    this.dialog.open(DialogForgotPasswordComponent, {
+      data: {
+        currentEmail: this.valueForm['username'].value,
+      },
+      width: '100%',
+      maxWidth: '450px',
+    });
+  }
+
+  stateDisabledInput(state: boolean): void {
+    if (state) {
+      this.valueForm['username'].disable();
+      this.valueForm['password'].disable();
+    } else {
+      this.valueForm['username'].enable();
+      this.valueForm['password'].enable();
     }
   }
 
