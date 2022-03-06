@@ -32,7 +32,7 @@ export class OauthService {
       secure: environment.COOKIE_SECURE,
       httpOnly: environment.COOKIE_HTTP_ONLY,
       path: '/',
-      expires: new Date(new Date().getTime() + (30 * 24 * 60 * 60 * 1000))
+      expires: new Date(new Date().getTime() + (30 * 24 * 60 * 60 * 1000)),
     });
   }
 

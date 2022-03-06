@@ -11,6 +11,6 @@ export const environment = {
   COOKIE_SID: 'SID-MYPONYASIA',
   COOKIE_SIDR: 'SIDR-MYPONYASIA',
   COOKIE_DOMAIN: '.myponyasia.com',
-  COOKIE_SECURE: true,
+  COOKIE_SECURE: false,
   COOKIE_HTTP_ONLY: true,
 };
