@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CookieService } from 'ngx-cookie';
+import { CookieOptions, CookieService } from 'ngx-cookie';
 import { environment } from 'src/environments/environment';
 import { OauthEmailVerificationParam, OauthForgotPasswordConfirmParam, OauthForgotPasswordParam, OauthRequest, OauthRequestParam, OauthSignin } from '../types';
 
@@ -25,15 +25,25 @@ export class OauthService {
     private cookieService: CookieService,
   ) { }
 
-  cookieSet(key: string, data: string): void {
-    console.log('Cookie set: ' + key + ' = ' + data);
-    this.cookieService.put(key, data, {
+  responseToken(data: OauthSignin): void {
+    this.cookieSet(environment.COOKIE_SID, data.data.access_token, {
       domain: environment.COOKIE_DOMAIN,
       secure: environment.COOKIE_SECURE,
       httpOnly: environment.COOKIE_HTTP_ONLY,
       path: '/',
-      expires: new Date(new Date().getTime() + (365 * 24 * 60 * 60 * 1000)),
+      expires: new Date(data.data.acces_token_expired),
     });
+    this.cookieSet(environment.COOKIE_SIDR, data.data.refresh_token, {
+      domain: environment.COOKIE_DOMAIN,
+      secure: environment.COOKIE_SECURE,
+      httpOnly: environment.COOKIE_HTTP_ONLY,
+      path: '/',
+      expires: new Date(data.data.refresh_token_expired),
+    });
+  }
+
+  cookieSet(key: string, data: string, options?: CookieOptions): void {
+    this.cookieService.put(key, data, options);
   }
 
   signIn(email: string, password: string, token: string): Observable<OauthSignin> {

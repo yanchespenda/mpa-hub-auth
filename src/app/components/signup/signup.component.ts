@@ -1,13 +1,15 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReCaptchaV3Service } from 'ng-recaptcha';
-import { Subscription, finalize, timeout } from 'rxjs';
+import { Subscription, finalize, timeout, timer } from 'rxjs';
 import { OauthService } from 'src/app/shared/services/oauth.service';
 import { BaseQueryParam } from 'src/app/shared/types';
 import { capitalize } from 'src/app/shared/utils/string-utils';
 import { validatorMessage } from 'src/app/shared/utils/validator-message';
+import { isLocalRoute, redirectValidator } from 'src/app/shared/utils/validator-redirect';
 
 @Component({
   selector: 'app-signup',
@@ -50,6 +52,7 @@ export class SignupComponent implements OnInit, OnDestroy {
     private oauthService: OauthService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
+    private matSnackBar: MatSnackBar,
   ) {
     this.queryParamValidation();
   }
@@ -63,6 +66,32 @@ export class SignupComponent implements OnInit, OnDestroy {
           desc: 'The request redirect not found'
         },
       });
+    }
+
+    if (this.queryParam.redirect && !redirectValidator(this.queryParam.redirect)) {
+      this.router.navigate([`/error`], {
+        queryParams: {
+          title: 'Bad Request',
+          desc: 'The request redirect not valid'
+        },
+      });
+    }
+  }
+
+  handleRedirect(): void {
+    if (this.queryParam.redirect) {
+      if (isLocalRoute(this.queryParam.redirect)) {
+        this.router.navigate([`/${this.queryParam.redirect}`], {
+          queryParams: {
+            redirect: this.queryParam.redirect,
+            ref: this.queryParam.ref,
+          },
+        });
+      } else {
+        timer(1000).subscribe(() => {
+          window.open(this.queryParam.redirect, '_self');
+        });
+      }
     }
   }
 
@@ -125,7 +154,14 @@ export class SignupComponent implements OnInit, OnDestroy {
         this.stateDisabledInput(false);
       })
     ).subscribe({
-      next: (data: any) => console.log(data),
+      next: (data) => {
+        this.oauthService.responseToken(data);
+        this.matSnackBar.open('Signin...', 'close', {
+          duration: 3000
+        });
+
+        this.handleRedirect();
+      },
       error: (error: HttpErrorResponse) => {
         console.log("error", error);
         this.isErrorPrimary = true;
@@ -147,8 +183,9 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   goToSignin(): void {
     if (this.queryParam.redirect) {
-      this.router.navigate([`/signin`], {
+      this.router.navigate([`/`], {
         queryParams: {
+          action: 'signin',
           redirect: this.queryParam.redirect,
           ref: this.queryParam.ref
         },

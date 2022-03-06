@@ -8,7 +8,9 @@ export interface OauthCSRF {
 }
 export interface OauthSigninData {
   access_token: string;
+  acces_token_expired: string;
   refresh_token: string;
+  refresh_token_expired: string;
 }
 
 export interface OauthSignin {
