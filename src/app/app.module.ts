@@ -5,9 +5,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module } from "ng-recaptcha";
+import { CookieModule } from 'ngx-cookie';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -46,6 +47,7 @@ import { DialogForgotPasswordComponent } from './components/dialog-forgot-passwo
     FormsModule,
     ReactiveFormsModule,
     RecaptchaV3Module,
+    CookieModule.forRoot(),
 
     MatCardModule,
     MatProgressBarModule,

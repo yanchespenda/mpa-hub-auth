@@ -5,9 +5,18 @@
 export const environment = {
   production: false,
 
+  // API Url
   BASE_API_URL: 'http://127.0.0.1:5000/',
 
+  // Recaptcha
   RECAPTCHA_V3_SITE_KEY: '6LfAjaAeAAAAACPr7rpb3nQtLJP5uXHk6TzFKjfn',
+
+  // Cookies
+  COOKIE_SID: 'SID-MYPONYASIA',
+  COOKIE_SIDR: 'SIDR-MYPONYASIA',
+  COOKIE_DOMAIN: 'localhost',
+  COOKIE_SECURE: false,
+  COOKIE_HTTP_ONLY: false,
 };
 
 /*

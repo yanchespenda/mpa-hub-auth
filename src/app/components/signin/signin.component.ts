@@ -10,6 +10,7 @@ import { BaseQueryParam } from 'src/app/shared/types';
 import { loadingAnimation } from 'src/app/shared/utils/animation';
 import { capitalize } from 'src/app/shared/utils/string-utils';
 import { validatorMessage } from 'src/app/shared/utils/validator-message';
+import { environment } from 'src/environments/environment';
 import { DialogForgotPasswordComponent } from '../dialog-forgot-password/dialog-forgot-password.component';
 
 @Component({
@@ -115,7 +116,12 @@ export class SigninComponent implements OnInit, OnDestroy {
         this.stateDisabledInput(false);
       })
     ).subscribe({
-      next: (data: any) => console.log(data),
+      next: (data) => {
+        console.log(data);
+
+        this.oauthService.cookieSet(environment.COOKIE_SID, data.data.access_token);
+        this.oauthService.cookieSet(environment.COOKIE_SIDR, data.data.refresh_token);
+      },
       error: (error: HttpErrorResponse) => {
         console.log("error", error);
         this.isErrorPrimary = true;

@@ -7,16 +7,14 @@ export interface OauthCSRF {
   data: string;
 }
 export interface OauthSigninData {
-  id: number;
-  username: string;
-  token: string;
-  expired: string;
+  access_token: string;
+  refresh_token: string;
 }
 
 export interface OauthSignin {
   status: boolean;
   message: string;
-  data: string;
+  data: OauthSigninData;
 }
 
 interface OauthErrorResponseData {

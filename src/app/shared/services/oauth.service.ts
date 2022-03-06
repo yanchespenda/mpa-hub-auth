@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { CookieService } from 'ngx-cookie';
 import { environment } from 'src/environments/environment';
 import { OauthEmailVerificationParam, OauthForgotPasswordConfirmParam, OauthForgotPasswordParam, OauthRequest, OauthRequestParam, OauthSignin } from '../types';
 
@@ -21,7 +22,19 @@ export class OauthService {
 
   constructor(
     private httpClient: HttpClient,
+    private cookieService: CookieService,
   ) { }
+
+  cookieSet(key: string, data: string): void {
+    console.log('Cookie set: ' + key + ' = ' + data);
+    this.cookieService.put(key, data, {
+      domain: environment.COOKIE_DOMAIN,
+      secure: environment.COOKIE_SECURE,
+      httpOnly: environment.COOKIE_HTTP_ONLY,
+      path: '/',
+      expires: new Date(new Date().getTime() + (30 * 24 * 60 * 60 * 1000))
+    });
+  }
 
   signIn(email: string, password: string, token: string): Observable<OauthSignin> {
     const dataParams = new HttpParams()
