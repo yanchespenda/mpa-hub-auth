@@ -131,6 +131,7 @@ export class SignupComponent implements OnInit, OnDestroy {
         timeout({
           each: 5000,
           with: () => {
+            this.isLoading = false;
             throw new Error('timeout')
           }
         })
